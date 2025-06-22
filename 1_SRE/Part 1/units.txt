@@ -4,18 +4,18 @@ seismic motion
 - PSD input [m²/s⁴/Hz]
 
 acceleration top
-- input [m]
-- output [m]
-- FRF unit [m] / [m] = [-]
+- input [m/s²]
+- output [m/s²]
+- FRF unit [m/s²] / [m/s²] = [-]
 - desired PSD [m²/s⁴/Hz]
 - calculation needed FRF² * PSD
 
 moment base
-- input [m]
+- input [m/s²]
 - output [Nm]
-- FRF unit [Nm] / [m] = [N]
+- FRF unit [Nm] / [m/s²] = [Ns²]
 - desired PSD [N²m²/Hz]
-- calculation needed FRF² * PSD / omega⁴
+- calculation needed FRF² * PSD
 
 
 waves
@@ -26,10 +26,10 @@ waves
 
 acceleration top
 - input [N/m]
-- output [m]
-- FRF unit [m] / [N/m] = [m²/N]
+- output [m/s²]
+- FRF unit [m/s²] / [N/m] = [m²/s²/N]
 - desired PSD [m²/s⁴/Hz]
-- calculation needed FRF² * PSD * omega⁴
+- calculation needed FRF² * PSD
 
 moment base
 - input [N/m]
