@@ -1,0 +1,107 @@
+!!!-------------railway track beam model---------!!!
+
+!! Pan Zhang, Delft University of Technology
+
+/PREP7 
+
+!!----------define elements, real  constants and materials
+
+et,1,3                              ! define beam3 element
+et,2,14                             ! define spring-damper element 
+et,3,21                             ! define mass element
+
+r,1,1,1,0.159,0                     ! real constants for rail UIC54 E1 
+mp,ex,1,0.25e11                     ! define rail materials
+mp,dens,1,1330 
+mp,prxy,1,0.3                       
+ 
+R,2,44e15,10e3,0, , ,,              ! railpad stiffnes and damping
+MP,BETD,2,,0.0001                   ! railpad  materials
+
+R,3, ,2330, , , , ,                 ! sleeper mass              
+MP,BETD,3,,0.0001                   ! sleeper materials
+
+R,4,44e7,10e3,0, , ,,               ! ballast stiffnes and damping
+MP,BETD,4,,0.0001                   ! ballast  material
+
+!!-----------define geometry parameters
+
+ls = 16                             ! sleeper span
+N= 10                               ! sleeper number
+le= 0.25                            ! element size
+ne = ls/le*N                        ! total rail elements
+nn = ls/le*N+1                      ! total rail nodes
+ni = ls/le                          ! make sure it is an integer&&
+
+!!---------- Build rail nodes and elements
+
+mat,1                               ! set rail materials
+type,1                              ! set rail elements
+real,1                              ! set rail real constant
+
+*DO,i,1,nn,1                        ! Build rail nodes
+N,i,(i-1)*le,0,0                  
+*ENDDO
+
+*DO,i,1,ne,1                        ! Build rail elements
+EN,i,i,i+1
+*ENDDO
+
+!!-----------Build sleepers, fastenings and ballast
+
+
+*DO,i,1,nn,ni
+                       
+NGEN,2,1000,i, , , ,-0.3, ,1,       ! Build sleeper nodes
+NGEN,2,2000,i, , , ,-0.6, ,1,       ! Build ballst node  
+    
+mat,3                               ! set sleeper materials
+type,3                              ! set sleeper element type
+real,3                              ! set sleeper real constant
+
+E,1000+i                            ! build sleepers
+D,1000+i, ,0, , , ,UX,, UZ, , ,     ! constrain the X ,Z motion of sleeper, only keep vertical
+
+mat,2                               ! set railpad materials, element type and real  constant
+type,2
+real,2
+E,i,1000+i                          ! build railapds
+
+mat,2                               ! set ballast materials, element type and real  constant
+type,2
+real,4
+
+E,1000+i,2000+i                     ! build ballast
+D,2000+i, ,0, , , ,UX,UY, UZ, , ,   ! fixed ballast ends      
+
+*ENDDO
+
+
+!!------Define boundary conditions of rail
+
+D,1, ,0, , , ,UX,UY, , , ,
+D,nn, ,0, , , ,UX,UY, , , ,
+
+
+!!!---------------------------modal analysis
+
+/SOL
+ANTYPE,2 
+MODOPT,LANB,20  
+EQSLV,SPAR  
+MXPAND,0, , ,0  
+LUMPM,0 
+PSTRES,0
+!*  
+MODOPT,LANB,200,0,2000, ,OFF      ! modal order 200, frequency range 0-2000 Hz
+/STATUS,SOLU
+SOLVE
+
+!!!---------------------------Post-process
+/POST1  
+SET,FIRST
+!SET,NEXT
+!*  
+/EFACET,1   
+PLNSOL, U,Y, 0,1.0  
+
